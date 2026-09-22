@@ -1,5 +1,8 @@
 # mb.io QA Automation — Playwright + Cucumber.js + Allure
 
+**📊 Live test reports:** https://indhu77ravi.github.io/mbio-qa-automation/
+(Chromium, Firefox and WebKit runs, Allure + Cucumber)
+
 BDD UI automation for **[mb.io/en-AE](https://mb.io/en-AE)**, the UAE site of MultiBank Group's
 crypto platform. Scenarios are written in Gherkin, run by **cucumber-js**, drive the browser with
 **Playwright**, and are reported in **Allure**.
@@ -18,6 +21,45 @@ report needs Java; without it, open `reports/cucumber-report.html` instead.
 > message if that happens.
 
 ---
+
+## Coverage
+
+| Requirement | Feature file |
+|---|---|
+| Navigation renders, links correctly, desktop sizes | `navigation/top-navigation.feature`, `navigation/desktop-viewports.feature` |
+| Spot pairs, categories, entry fields | `trading/spot-market.feature`, `trading/categories.feature`, `trading/home-movers.feature` |
+| Banners, app store links, Why MultiBank | `content/banners.feature`, `content/app-download.feature`, `content/why-multibank.feature` |
+| Invalid route, broken links, mobile, loading timeout | `edge-cases/*.feature` |
+| API validation, visual regression | `api/market-data.feature`, `visual/visual.feature` |
+| Regulatory compliance | `content/regulatory-footer.feature` |
+
+60 scenarios in 15 feature files, run on Chromium, Firefox, WebKit and an emulated phone.
+
+## Findings from building the suite
+
+Observed on the live site on 22 Sep 2026. Items 1–3 shaped the design; 4–9 are defects
+or risks I'd raise with the team.
+
+1. **Target moved.** `trade.multibank.io` redirects to `trade.mb.io` (the login-gated
+   trading app). The public site with these scenarios is `mb.io/en-AE`.
+2. **Region-specific content by IP.** `/en-AE` is served in the UAE; elsewhere it redirects to
+   `/en`. The UAE footer links GCC/VARA documents (e.g. _VA Standards_, _Public Disclosure_)
+   that the global site doesn't have.
+3. **No App Store / Google Play badges.** One smart link (`mbio.go.link`) routes by device.
+4. **Bug: 404 recovery link drops the locale.** On `/en-AE/...` the "Back to Homepage" link
+   goes to `/en`, moving UAE users to the non-UAE site and its different regulatory content.
+   Covered by a `@known-bug` scenario (`npm run test:known-bugs`), expected to fail until fixed.
+5. **Accessibility: price direction is shown only by the arrow icon.** Percentages are
+   unsigned ("6.51%") and the arrow has no text alternative, so a screen reader announces
+   a 6.51% loss as "6.51%" (WCAG 1.1.1 / 1.4.1). The suite reads direction from the icon's
+   class for this reason.
+6. **Accessibility: category buttons expose no selected state** (`aria-pressed`/`aria-selected`);
+   the active one is only styled. The suite checks ARIA first and falls back to the class.
+7. **Accessibility: the market table has no header row**, so columns have no names for
+   assistive tech. The suite reads columns by position.
+8. **Sub-cent assets show as `$0.00`** (e.g. SHIB), so the price is uninformative.
+9. **Asset links omit the locale** (`/explore/BTC` rather than `/en-AE/explore/BTC`) and rely on
+   a redirect; worth confirming region is preserved for every entry point.
 
 ## Project structure
 
@@ -48,6 +90,7 @@ report needs Java; without it, open `reports/cucumber-report.html` instead.
 ├── TestData/                    ae.json (default), global.json, visual baselines
 ├── tests/unit/                  unit tests for helpers (node --test)
 ├── scripts/                     run-and-report, cross-browser, discover
+├── docs/                        published sample reports (GitHub Pages)
 ├── cucumber.js                  profiles: default, smoke, regression, mobile, visual, knownBugs, parallel
 └── .env.example                 copy to .env to set options
 ```
@@ -103,44 +146,8 @@ $env:BROWSER="chrome"; $env:SLOWMO="800"; npx cucumber-js features/navigation/to
 `npm run test:report` and `test:run-and-open` always generate Allure, **even when scenarios
 fail**, and still exit with the test result so CI fails correctly.
 
-## Coverage
-
-| Brief requirement | Feature file |
-|---|---|
-| Nav renders, links correctly, desktop sizes | `navigation/top-navigation.feature`, `navigation/desktop-viewports.feature` |
-| Spot pairs, categories, entry fields | `trading/spot-market.feature`, `trading/categories.feature` (+ `home-movers.feature`) |
-| Banners, app store links, Why MultiBank | `content/banners.feature`, `content/app-download.feature`, `content/why-multibank.feature` |
-| Invalid route, broken links, mobile, loading timeout | `edge-cases/*.feature` (all four; the brief asks for two) |
-| Bonus: API, visual, data-driven, CI | `api/market-data.feature`, `visual/visual.feature`, `TestData/`, `.github/workflows/e2e.yml` |
-| Extra: regulatory compliance | `content/regulatory-footer.feature` |
-
-60 scenarios in 15 feature files.
-
-## Findings from building the suite
-
-Observed on the live site on 22 Sep 2026. Items 1–3 shaped the design; 4–9 are defects
-or risks I'd raise with the team.
-
-1. **Target moved.** `trade.multibank.io` redirects to `trade.mb.io` (the login-gated
-   trading app). The public site with the brief's scenarios is `mb.io/en-AE`.
-2. **Region-specific content by IP.** `/en-AE` is served in the UAE; elsewhere it redirects to
-   `/en`. The UAE footer links GCC/VARA documents (e.g. _VA Standards_, _Public Disclosure_)
-   that the global site doesn't have.
-3. **No App Store / Google Play badges.** One smart link (`mbio.go.link`) routes by device.
-4. **Bug: 404 recovery link drops the locale.** On `/en-AE/...` the "Back to Homepage" link
-   goes to `/en`, moving UAE users to the non-UAE site and its different regulatory content.
-   Covered by a `@known-bug` scenario (`npm run test:known-bugs`), expected to fail until fixed.
-5. **Accessibility: price direction is shown only by the arrow icon.** Percentages are
-   unsigned ("6.51%") and the arrow has no text alternative, so a screen reader announces
-   a 6.51 % loss as "6.51%" (WCAG 1.1.1 / 1.4.1). The suite reads direction from the icon's
-   class for this reason.
-6. **Accessibility: category buttons expose no selected state** (`aria-pressed`/`aria-selected`);
-   the active one is only styled. The suite checks ARIA first and falls back to the class.
-7. **Accessibility: the market table has no header row**, so columns have no names for
-   assistive tech. The suite reads columns by position.
-8. **Sub-cent assets show as `$0.00`** (e.g. SHIB), so the price is uninformative.
-9. **Asset links omit the locale** (`/explore/BTC` rather than `/en-AE/explore/BTC`) and rely on
-   a redirect; worth confirming region is preserved for every entry point.
+Sample cross-browser reports from a real run are published from `docs/` via GitHub Pages
+(link at the top of this page). In CI, every browser job also uploads its reports as artifacts.
 
 ## Design decisions
 
@@ -176,35 +183,23 @@ Cookiebot are blocked; a scoped handler clicks **Deny** if a consent banner stil
 **Evidence.** A screenshot after every step, a full-page screenshot and page info at the end,
 browser console logs, and a Playwright trace for failed scenarios, all attached to the report.
 
+**Reports even when tests fail.** `scripts/run-and-report.js` always generates the Allure report
+and then exits with the test result, so a failing run still produces evidence and CI still fails.
+
+**Secrets stay out of the repo.** Only `.env.example` is committed; `.env` is git-ignored.
+
 ## Region handling
 
 The site picks content by IP, so where tests run matters:
 
-| Where you run                      | Command                                           |
-| ---------------------------------- | ------------------------------------------------- |
-| In the UAE                         | `npm test`                                        |
-| Elsewhere, testing the UAE site    | `set `PROXY_SERVER=http://<uae-proxy>:<port>` in `.env`, then `npm test`` |
-| Elsewhere, testing the global site | `npm run test:global`                             |
+| Where you run | How |
+|---|---|
+| In the UAE | `npm test` |
+| Elsewhere, testing the UAE site | Set `PROXY_SERVER=http://<uae-proxy>:<port>` in `.env`, then `npm test` |
+| Elsewhere, testing the global site | `npm run test:global` |
 
-In CI, set the repo secret `UAE_PROXY_SERVER`; GitHub-hosted runners are outside the UAE.
-
-## Differences from the reference framework
-
-This project follows the reference framework's structure and conventions (cucumber-js, Playwright
-library, `support/hooks.js` + `browser.js`, `PageObjectManager`, `steps/allurelogger.js`,
-`playwrightUtils`, `TestData/`, baseline/compare visual mode, `cucumberautocomplete`). A few things
-are deliberately different, because they don't behave as intended in the current library versions:
-
-| Topic | Reference | Here | Why |
-|---|---|---|---|
-| Allure API | `require('allure-cucumberjs').allure` | `allure-js-commons` | v3 has no `allure` export, so the reference's `logStep`/`logTestData` only reach the console |
-| Step timeout | `timeout` in `cucumber.js` | `setDefaultTimeout` in hooks | `timeout` isn't a cucumber.js option; the real default stays 5 s |
-| Attachment names | 3rd argument to `attach` | `{ mediaType, fileName }` | cucumber-js v12 ignores a 3rd argument |
-| Report after failures | `npm run test && allure generate` | `scripts/run-and-report.js` | `&&` skips the report when a test fails |
-| Soft checks | log a warning and continue | `SoftAssert`, fails at the end of the step | warnings can hide real failures |
-| Traces | `trace` option on `newContext` | `context.tracing` start/stop | `newContext` has no trace/video/screenshot options |
-| Browsers | Chromium only | `BROWSER`, mobile devices via `@mobile` | the brief asks for cross-browser evidence |
-| Secrets | `.env` committed | `.env.example` committed, `.env` git-ignored | credentials must not be in the repo |
+In CI, set the repo secret `UAE_PROXY_SERVER`; without it, CI runs against the global site,
+because GitHub-hosted runners are outside the UAE.
 
 ## Adding a scenario
 
@@ -216,7 +211,7 @@ are deliberately different, because they don't behave as intended in the current
 
 ## Assumptions and limitations
 
-- No login, no forms submitted, no personal data (per the brief). Sign in / Sign up are checked by href only.
+- No login, no forms submitted, no personal data. Sign in / Sign up are checked by href only.
 - The smart download link's per-device behaviour was designed from how such links generally work.
 - Asset detail pages are checked for URL, non-404 and symbol presence only.
 - Next steps: axe-core accessibility checks (would formalise findings 5–7), performance budgets,
