@@ -1,0 +1,26 @@
+# GitLab equivalent (same pattern as the reference framework): manual job, optional FEATURE_FILE variable.
+stages:
+  - test
+
+e2e:
+  stage: test
+  image: mcr.microsoft.com/playwright:v1.63.0-noble
+  when: manual
+  variables:
+    CI: 'true'
+    BROWSER: chromium
+    FEATURE_FILE: ''
+    STEP_SCREENSHOTS: 'false'
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq default-jre-headless > /dev/null
+    - npm ci
+  script:
+    - 'echo "Running: ${FEATURE_FILE:-all features} on ${BROWSER}"'
+    - node scripts/run-and-report.js ${FEATURE_FILE}
+  artifacts:
+    when: always
+    paths:
+      - allure-report/
+      - allure-results/
+      - reports/
+    expire_in: 30 days

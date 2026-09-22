@@ -1,0 +1,73 @@
+name: E2E
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 3 * * *' # nightly 07:00 Dubai: catches site changes between our commits
+  workflow_dispatch:
+    inputs:
+      feature:
+        description: 'Feature file to run (empty = all), e.g. features/navigation/top-navigation.feature'
+        default: ''
+      profile:
+        description: 'cucumber.js profile'
+        type: choice
+        options: [default, smoke, regression, mobile]
+        default: default
+      target:
+        description: 'Region profile'
+        type: choice
+        options: [ae, global]
+        default: ae
+
+permissions:
+  contents: read
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run unit
+      - run: npx cucumber-js --dry-run --strict --format summary # every step defined, none ambiguous
+
+  e2e:
+    needs: static-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    env:
+      CI: 'true'
+      BROWSER: ${{ matrix.browser }}
+      TARGET: ${{ inputs.target || 'ae' }}
+      STEP_SCREENSHOTS: 'false' # keeps CI reports small; failures still get screenshots + trace
+      # GitHub runners are outside the UAE; set this secret to a UAE proxy for the ae profile
+      PROXY_SERVER: ${{ secrets.UAE_PROXY_SERVER }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: actions/setup-java@v4 # Allure report generation needs Java
+        with: { distribution: temurin, java-version: 21 }
+      - run: npm ci
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Run scenarios and generate Allure report
+        run: node scripts/run-and-report.js -p ${{ inputs.profile || 'default' }} ${{ inputs.feature }}
+      - name: Upload reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-${{ matrix.browser }}
+          path: |
+            allure-report/
+            allure-results/
+            reports/
+          retention-days: 30
