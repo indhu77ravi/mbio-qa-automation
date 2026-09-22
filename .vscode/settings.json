@@ -1,0 +1,13 @@
+{
+  "cucumberautocomplete.steps": ["steps/**/*.js"],
+  "cucumberautocomplete.syncfeatures": "features/**/*.feature",
+  "cucumberautocomplete.strictGherkinCompletion": true,
+  "cucumberautocomplete.smartSnippets": true,
+  "cucumberautocomplete.stepsInvariants": true,
+  "cucumberautocomplete.customParameters": [
+    { "parameter": "{word}", "value": "([^\\s]+)" },
+    { "parameter": "a(n)", "value": "an?" },
+    { "parameter": "asset(s)", "value": "assets?" }
+  ],
+  "editor.formatOnSave": false
+}
