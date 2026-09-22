@@ -1,0 +1,14 @@
+{
+  "_comment": "Overrides for the non-UAE site (https://mb.io/en). Anything not listed here is taken from ae.json.",
+  "name": "global",
+  "localePath": "/en",
+  "footer": {
+    "requiredLinks": [
+      { "label": "Acceptable Use Policy", "hrefPattern": "/en/about/acceptable-use-policy$" },
+      { "label": "Privacy Policy", "hrefPattern": "/en/about/privacy-policy$" },
+      { "label": "Cookie Policy", "hrefPattern": "/en/about/cookie-policy$" },
+      { "label": "Terms & Conditions", "hrefPattern": "/en/about/terms-conditions$" },
+      { "label": "Client Agreement", "hrefPattern": "/en/about/client-agreement$" }
+    ]
+  }
+}

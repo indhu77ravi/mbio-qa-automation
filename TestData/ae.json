@@ -1,0 +1,101 @@
+{
+  "_comment": "UAE profile (https://mb.io/en-AE). Verified against the live site on 2026-09-22. Values ending in 'Pattern' are regular expressions.",
+  "name": "ae",
+  "baseURL": "https://mb.io",
+  "localePath": "/en-AE",
+  "ownedHostsPattern": "(^|\\.)mb\\.io$|(^|\\.)multibankgroup\\.com$",
+
+  "navigation": {
+    "logoName": "Home",
+    "menuButtonName": "Open menu",
+    "items": [
+      { "label": "Explore", "urlPattern": "/en-AE/explore/?$" },
+      { "label": "Features", "urlPattern": "/en-AE/features/?$" },
+      { "label": "OTC Desk", "urlPattern": "/en-AE/features/otc-desk/?$" },
+      { "label": "Company", "urlPattern": "/en-AE/company/?$" },
+      { "label": "Support", "urlPattern": "/en-AE/support/?$" },
+      { "label": "Blog", "urlPattern": "/en-AE/blog/?$" },
+      { "label": "$MBG", "urlPattern": "^https://token\\.multibankgroup\\.com/", "newTab": true }
+    ],
+    "authLinks": [
+      { "label": "Sign in", "hrefPattern": "^https://trade\\.mb\\.io/login" },
+      { "label": "Sign up", "hrefPattern": "^https://trade\\.mb\\.io/register" }
+    ]
+  },
+
+  "explore": {
+    "path": "/explore",
+    "headingPattern": "Markets at your fingertips",
+    "categories": [
+      { "label": "Hot", "apiId": "hot" },
+      { "label": "Gainers", "apiId": "gainers", "direction": "up" },
+      { "label": "Losers", "apiId": "losers", "direction": "down" }
+    ]
+  },
+
+  "ui": {
+    "upIndicator": ".fill-success",
+    "downIndicator": ".fill-fail",
+    "activeCategoryClassPattern": "\\bbg-lighter\\b"
+  },
+
+  "banners": [
+    { "textPattern": "Earn interest on your assets" },
+    { "textPattern": "Get crypto with your card", "hrefPattern": "^https://trade\\.mb\\.io/" },
+    { "textPattern": "Deposits using card or wire transfer", "hrefPattern": "^https://trade\\.mb\\.io/" }
+  ],
+
+  "appDownload": {
+    "linkNamePattern": "download the app",
+    "hrefPattern": "^https://mbio\\.go\\.link/",
+    "stores": {
+      "App Store": { "device": "iPhone", "urlPattern": "^https://apps\\.apple\\.com/" },
+      "Google Play": { "device": "Android", "urlPattern": "^https://play\\.google\\.com/" }
+    }
+  },
+
+  "company": {
+    "path": "/company",
+    "headingPattern": "^Why MultiBank Group\\?$",
+    "introPattern": "For nearly two decades, MultiBank has built a reputation",
+    "sections": {
+      "A tradition of global leadership": "Founded in 2005",
+      "Innovation with purpose": "technology should simplify finance",
+      "Integrity built into every decision": "Trust is earned through consistent action"
+    },
+    "strengths": {
+      "Regulation at our core": "strict global oversight",
+      "Proven track record": "resilient and reliable",
+      "Secure & trusted": "Institution-grade infrastructure"
+    },
+    "ctaHrefPattern": "/support/contact-us"
+  },
+
+  "footer": {
+    "requiredLinks": [
+      { "label": "Disclaimer", "hrefPattern": "/en-AE/about/disclaimer-gcc" },
+      { "label": "Public Disclosure", "hrefPattern": "/en-AE/about/public-disclosure-gcc" },
+      { "label": "VA Standards", "hrefPattern": "/en-AE/about/virtual-asset-standards-gcc" },
+      { "label": "Privacy Policy", "hrefPattern": "/en-AE/about/privacy-policy-gcc" },
+      { "label": "Cookie Policy", "hrefPattern": "/en-AE/about/cookie-policy-gcc" },
+      { "label": "Terms & Conditions", "hrefPattern": "/en-AE/about/terms-conditions-gcc" },
+      { "label": "Client Agreement", "hrefPattern": "/en-AE/about/client-agreement-gcc" },
+      { "label": "Public Complaint Policy", "hrefPattern": "/en-AE/about/complaint-policy-gcc" }
+    ]
+  },
+
+  "notFound": {
+    "route": "/this-route-should-not-exist-qa",
+    "headingPattern": "^Page not found$"
+  },
+
+  "api": {
+    "marketDataPattern": "core-api\\.mb\\.io/api/io/v1/market/|mbg-market-data-service\\.mb\\.io/api/io/v1/marketdata/",
+    "categoriesPattern": "core-api\\.mb\\.io/api/io/v1/market/widget",
+    "pricesPattern": "mbg-market-data-service\\.mb\\.io/api/io/v1/marketdata/prices"
+  },
+
+  "brokenLinks": {
+    "skipHostsPattern": "(^|\\.)(x|twitter|linkedin|instagram|facebook|youtube|t)\\.(com|me)$"
+  }
+}
